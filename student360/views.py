@@ -70,10 +70,26 @@ def logout_view(request):
     messages.info(request, "You have been logged out of EduTrack.")
     return redirect('login')
 
+def ensure_default_classes_and_divisions():
+    if not Class.objects.exists():
+        default_classes = [
+            ("Class 1", "CLS1"), ("Class 2", "CLS2"), ("Class 3", "CLS3"),
+            ("Class 4", "CLS4"), ("Class 5", "CLS5"), ("Class 6", "CLS6"),
+            ("Class 7", "CLS7"), ("Class 8", "CLS8"), ("Class 9", "CLS9"),
+            ("Class 10", "CLS10"), ("Class 11", "CLS11"), ("Class 12", "CLS12"),
+        ]
+        for cname, ccode in default_classes:
+            Class.objects.get_or_create(name=cname, defaults={'code': ccode})
+
+    if not Division.objects.exists():
+        for dname in ["A", "B", "C", "D"]:
+            Division.objects.get_or_create(name=dname)
+
 def register_student_public_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
 
+    ensure_default_classes_and_divisions()
     classes = Class.objects.all()
     divisions = Division.objects.all()
     active_year = AcademicYear.objects.filter(is_active=True).first()
@@ -869,6 +885,7 @@ def ptm_update_status_view(request, pk):
 @login_required
 @teacher_required
 def add_student_view(request):
+    ensure_default_classes_and_divisions()
     classes = Class.objects.all()
     divisions = Division.objects.all()
     active_year = AcademicYear.objects.filter(is_active=True).first()
