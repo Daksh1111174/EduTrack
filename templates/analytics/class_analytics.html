@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Class Performance Analytics — Student360{% endblock %}
+{% block page_title %}Class Performance Analytics & Comparison{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header bg-white border-0 pt-3 pb-3">
+        <form method="GET" class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <label class="form-label fw-semibold text-secondary small">Select Class for Statistical Analysis</label>
+                <select name="class_id" class="form-select bg-light" onchange="this.form.submit()">
+                    {% for c in classes %}
+                        <option value="{{ c.id }}" {% if selected_class and selected_class.id == c.id %}selected{% endif %}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    {% if selected_class %}
+    <div class="card-body">
+        <h5 class="fw-bold text-dark mb-3">{{ selected_class.name }} Summary</h5>
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="text-muted small">Total Enrolled</span>
+                    <h3 class="fw-bold text-dark m-0">{{ stats.total_students }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="text-muted small">Class Avg HPI</span>
+                    <h3 class="fw-bold text-primary m-0">{{ stats.avg_hpi }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="text-muted small">Academic Average</span>
+                    <h3 class="fw-bold text-success m-0">{{ stats.avg_acad }}%</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <span class="text-muted small">At-Risk Count</span>
+                    <h3 class="fw-bold text-danger m-0">{{ stats.at_risk_count }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

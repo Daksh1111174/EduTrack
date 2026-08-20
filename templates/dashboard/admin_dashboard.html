@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard — EduTrack Intelligence Portal{% endblock %}
+{% block page_title %}School Performance Analytics & Admin Control Center{% endblock %}
+
+{% block content %}
+<!-- Top Action & Management Control Header Banner -->
+<div class="card border-0 shadow-sm rounded-3 bg-white p-3 mb-4 border-start border-4 border-success">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-icon-primary" style="width:52px; height:52px; display:flex; align-items:center; justify-content:center;">
+                <i class="fa-solid fa-user-gear text-primary fs-3"></i>
+            </div>
+            <div>
+                <h5 class="fw-extrabold text-dark mb-0">EduTrack Administration & Control Center</h5>
+                <small class="text-muted">Manage 120+ Students, 12+ Faculty members, HPI weights, and institutional risk analytics.</small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                <i class="fa-solid fa-user-plus text-white me-1.5"></i> Add New Student
+            </button>
+            <a href="{% url 'csv_import' %}" class="btn btn-warning rounded-pill px-3 shadow-sm fw-bold">
+                <i class="fa-solid fa-file-csv text-dark me-1"></i> Bulk CSV Import
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Top KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small fw-semibold text-uppercase">Total Students</span>
+                <h3 class="fw-extrabold text-dark m-0 mt-1">{{ total_students }}</h3>
+            </div>
+            <div class="stat-icon bg-icon-primary">
+                <i class="fa-solid fa-users-line text-primary"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small fw-semibold text-uppercase">Average HPI Score</span>
+                <h3 class="fw-extrabold text-primary m-0 mt-1">{{ avg_hpi }}<small class="fs-6 text-muted">/100</small></h3>
+            </div>
+            <div class="stat-icon bg-icon-purple">
+                <i class="fa-solid fa-award text-purple"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small fw-semibold text-uppercase">Avg Attendance</span>
+                <h3 class="fw-extrabold text-success m-0 mt-1">{{ avg_att }}%</h3>
+            </div>
+            <div class="stat-icon bg-icon-success">
+                <i class="fa-solid fa-calendar-check text-success"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-muted small fw-semibold text-uppercase">Total Faculty</span>
+                <h3 class="fw-extrabold text-dark m-0 mt-1">{{ total_teachers }}</h3>
+            </div>
+            <div class="stat-icon bg-icon-warning">
+                <i class="fa-solid fa-chalkboard-user text-warning"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Registration Authorization Widget -->
+{% if pending_users %}
+<div class="card border-0 shadow-sm rounded-3 border-start border-4 border-warning mb-4">
+    <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold m-0 text-dark">
+            <i class="fa-solid fa-user-clock text-warning me-2 fs-5"></i>
+            Pending User Registrations Awaiting Admin Approval 
+            <span class="badge bg-warning text-dark font-monospace ms-2">{{ pending_users.count }} Pending</span>
+        </h6>
+    </div>
+    <div class="card-body px-0 pb-0">
+        <div class="table-responsive">
+            <table class="table custom-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Username</th>
+                        <th>Name</th>
+                        <th>Role Requested</th>
+                        <th>Email / Phone</th>
+                        <th>Date Registered</th>
+                        <th class="pe-4 text-end">Admin Authorization</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pu in pending_users %}
+                        <tr>
+                            <td class="ps-4 font-monospace fw-bold text-dark">{{ pu.username }}</td>
+                            <td class="fw-bold text-primary">{{ pu.get_full_name|default:pu.username }}</td>
+                            <td>
+                                {% if pu.is_student %}
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-2.5 py-1 rounded-pill">Student</span>
+                                {% else %}
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2.5 py-1 rounded-pill">Teacher</span>
+                                {% endif %}
+                            </td>
+                            <td class="small">{{ pu.email|default:"N/A" }}</td>
+                            <td class="small text-muted">{{ pu.date_joined|date:"M d, Y H:i" }}</td>
+                            <td class="pe-4 text-end">
+                                <a href="{% url 'approve_user' pu.id %}" class="btn btn-sm btn-success rounded-pill px-3 me-1">
+                                    <i class="fa-solid fa-check text-white me-1"></i> Approve & Activate
+                                </a>
+                                <a href="{% url 'reject_user' pu.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="return confirm('Decline and delete this pending registration?')">
+                                    <i class="fa-solid fa-xmark"></i> Reject
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row g-4 mb-4">
+    <!-- Chart: School-Wide Performance Pillars -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-chart-bar text-primary me-2"></i>7-Pillar Performance Averages</h6>
+                <span class="badge bg-light text-dark">Active Term: {{ active_year.name|default:"2025-2026" }}</span>
+            </div>
+            <div class="card-body">
+                <canvas id="pillarBarChart" height="110"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student of Month Winners Widget (Auto-Decided) -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-trophy text-warning me-2"></i>Student of the Month Winners</h6>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill small">Auto-Decided</span>
+            </div>
+            <div class="card-body">
+                {% if monthly_winners %}
+                    <div class="list-group list-group-flush">
+                        {% for award in monthly_winners %}
+                            <div class="list-group-item px-0 py-2.5 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ award.student.full_name }}</h6>
+                                    <span class="text-muted small">{{ award.student.class_obj.name }} - {{ award.student.division_obj.name }}</span>
+                                </div>
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold">
+                                    <i class="fa-solid fa-star text-dark me-1"></i> Winner
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-award fs-2 text-warning mb-2"></i>
+                        <p class="mb-0 small">No Student of the Month winners calculated yet for this period.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- At-Risk Monitoring Roster -->
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>At-Risk Students Requiring Intervention</h6>
+        <a href="{% url 'at_risk_monitoring' %}" class="btn btn-sm btn-outline-primary rounded-pill">View All At-Risk</a>
+    </div>
+    <div class="card-body px-0 pb-0">
+        <div class="table-responsive">
+            <table class="table custom-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Student</th>
+                        <th>Class & Division</th>
+                        <th>HPI Score</th>
+                        <th>Attendance</th>
+                        <th>Academic</th>
+                        <th>Risk Level</th>
+                        <th>Recommended Action</th>
+                        <th class="pe-4 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in at_risk_students %}
+                        <tr>
+                            <td class="ps-4 fw-bold">
+                                <a href="{% url 'student_detail' item.student.id %}" class="text-decoration-none text-dark">
+                                    {{ item.student.full_name }}
+                                </a>
+                            </td>
+                            <td>{{ item.student.class_obj.name }} - {{ item.student.division_obj.name }}</td>
+                            <td class="fw-bold text-primary">{{ item.holistic_score }}</td>
+                            <td>{{ item.attendance_score }}%</td>
+                            <td>{{ item.academic_score }}%</td>
+                            <td>
+                                <span class="badge badge-risk-{{ item.risk_level|lower }} px-2.5 py-1 rounded-pill">
+                                    {{ item.get_risk_level_display }}
+                                </span>
+                            </td>
+                            <td class="small text-muted text-truncate" style="max-width: 250px;">{{ item.risk_recommendation }}</td>
+                            <td class="pe-4 text-end">
+                                <a href="{% url 'student_detail' item.student.id %}" class="btn btn-sm btn-light border rounded-pill">360 View</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">No high-risk students flagged.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-user-plus text-primary me-2"></i>Add New Student</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'add_student' %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Student ID <span class="text-danger">*</span></label>
+                            <input type="text" name="student_id" class="form-control" placeholder="e.g. STU1201" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Roll Number <span class="text-danger">*</span></label>
+                            <input type="number" name="roll_number" class="form-control" placeholder="e.g. 9" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Class <span class="text-danger">*</span></label>
+                            <select name="class_id" class="form-select" required>
+                                <option value="">Select Class</option>
+                                {% for c in classes %}
+                                    <option value="{{ c.id }}">{{ c.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Division <span class="text-danger">*</span></label>
+                            <select name="division_id" class="form-select" required>
+                                <option value="">Select Division</option>
+                                {% for d in divisions %}
+                                    <option value="{{ d.id }}">{{ d.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Gender</label>
+                            <select name="gender" class="form-select">
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="student@edutrack.edu">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
+                        <i class="fa-solid fa-check text-white me-1"></i> Register Student
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ctx = document.getElementById('pillarBarChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Academic (40%)', 'Attendance (15%)', 'Behaviour (15%)', 'Participation (10%)', 'Assignments (5%)', 'Improvement (10%)', 'Achievements (5%)'],
+        datasets: [{
+            label: 'School Average Score (%)',
+            data: [78.5, {{ avg_att }}, 82.0, 76.4, 84.1, 75.0, 72.0],
+            backgroundColor: ['#0D472B', '#10b981', '#D4AF37', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316'],
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, max: 100 } }
+    }
+});
+</script>
+{% endblock %}

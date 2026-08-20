@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Registration — Student360{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100 my-n4 py-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-lg rounded-4 p-4">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="stat-icon bg-icon-primary mx-auto mb-3" style="width:60px; height:60px;">
+                        <i class="fa-solid fa-chalkboard-user fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">Teacher Registration</h3>
+                    <p class="text-muted small">Create your Student360 Faculty Account to manage student records</p>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control bg-light" placeholder="Choose username" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Employee ID <span class="text-danger">*</span></label>
+                            <input type="text" name="employee_id" class="form-control bg-light" placeholder="e.g. EMP2011" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control bg-light" placeholder="First Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control bg-light" placeholder="Last Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Department</label>
+                            <input type="text" name="department" class="form-control bg-light" placeholder="e.g. Mathematics, Science" value="Academics">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Designation</label>
+                            <input type="text" name="designation" class="form-control bg-light" placeholder="e.g. Senior Faculty" value="Faculty">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control bg-light" placeholder="teacher@school.edu" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Phone Number</label>
+                            <input type="text" name="phone" class="form-control bg-light" placeholder="Phone Number">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Password <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control bg-light" placeholder="Create Password" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Confirm Password <span class="text-danger">*</span></label>
+                            <input type="password" name="confirm_password" class="form-control bg-light" placeholder="Confirm Password" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold rounded-3 mb-3 shadow-sm">
+                        <i class="fa-solid fa-user-check me-2"></i> Register Teacher Account
+                    </button>
+                </form>
+
+                <div class="text-center mt-3 pt-3 border-top">
+                    <span class="text-muted small">Already registered?</span>
+                    <a href="{% url 'login' %}" class="fw-bold text-primary ms-1 text-decoration-none">Back to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

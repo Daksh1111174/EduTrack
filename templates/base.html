@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduTrack — Advanced Student Performance Intelligence Platform{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Apply Dark/Light theme immediately on head load to prevent screen flash
+        (function() {
+            const savedTheme = localStorage.getItem('edutrack_theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+            }
+        })();
+    </script>
+</head>
+<body>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar Navigation -->
+        {% if user.is_authenticated %}
+        <div id="sidebar-wrapper">
+            <div class="sidebar-brand p-4 text-center border-bottom border-secondary border-opacity-25 bg-black bg-opacity-20">
+                <img src="/static/images/edutrack_logo.png" alt="EduTrack Logo & Brand" style="width: 100%; max-height: 220px; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.6));">
+            </div>
+            <ul class="sidebar-nav mt-2">
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' or 'dashboard' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-chart-line text-primary"></i> Dashboard
+                    </a>
+                </li>
+
+                {% if user.is_student and not user.is_superuser %}
+                    {% if user.student_profile %}
+                    <li class="nav-item">
+                        <a href="{% url 'student_detail' user.student_profile.id %}" class="nav-link {% if request.resolver_match.url_name == 'student_detail' %}active{% endif %}">
+                            <i class="fa-solid fa-user-graduate text-info"></i> My 360 Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'student_assignments' %}" class="nav-link {% if request.resolver_match.url_name == 'student_assignments' %}active{% endif %}">
+                            <i class="fa-solid fa-book-open text-primary"></i> My Assignments
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endif %}
+
+                {% if user.is_admin or user.is_teacher %}
+                    <li class="nav-item">
+                        <a href="{% url 'student_list' %}" class="nav-link {% if request.resolver_match.url_name == 'student_list' or 'student_detail' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fa-solid fa-user-graduate text-info"></i> Students Roster
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'teacher_list' %}" class="nav-link {% if request.resolver_match.url_name == 'teacher_list' %}active{% endif %}">
+                            <i class="fa-solid fa-chalkboard-user text-success"></i> Teachers Roster
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li class="nav-item">
+                    <a href="{% url 'notifications_list' %}" class="nav-link {% if request.resolver_match.url_name == 'notifications_list' %}active{% endif %}">
+                        <i class="fa-solid fa-bell text-warning"></i> Notifications
+                    </a>
+                </li>
+
+                {% if user.is_admin or user.is_teacher %}
+                <li class="nav-item">
+                    <a href="{% url 'indicators_entry' %}" class="nav-link {% if request.resolver_match.url_name == 'indicators_entry' %}active{% endif %}">
+                        <i class="fa-solid fa-sliders text-warning"></i> Log Indicators
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#createAssignmentModal">
+                        <i class="fa-solid fa-file-circle-plus text-primary"></i> Create Assignment
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'assignments_review' %}" class="nav-link {% if request.resolver_match.url_name == 'assignments_review' %}active{% endif %}">
+                        <i class="fa-solid fa-file-check text-success"></i> Grade Submissions
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'marks_entry' %}" class="nav-link {% if request.resolver_match.url_name == 'marks_entry' %}active{% endif %}">
+                        <i class="fa-solid fa-file-pen text-info"></i> Enter Marks
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'attendance_entry' %}" class="nav-link {% if request.resolver_match.url_name == 'attendance_entry' %}active{% endif %}">
+                        <i class="fa-solid fa-calendar-check text-success"></i> Attendance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'at_risk_monitoring' %}" class="nav-link {% if request.resolver_match.url_name == 'at_risk_monitoring' %}active{% endif %}">
+                        <i class="fa-solid fa-triangle-exclamation text-danger"></i> At-Risk Students
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'class_analytics' %}" class="nav-link {% if request.resolver_match.url_name == 'class_analytics' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-pie text-primary"></i> Class Analytics
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if user.is_admin %}
+                <li class="nav-item">
+                    <a href="{% url 'add_student' %}" class="nav-link {% if request.resolver_match.url_name == 'add_student' %}active{% endif %}">
+                        <i class="fa-solid fa-user-plus text-success"></i> Add New Student
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="nav-item">
+                    <a href="{% url 'gamification_hub' %}" class="nav-link {% if request.resolver_match.url_name == 'gamification_hub' %}active{% endif %}">
+                        <i class="fa-solid fa-trophy text-warning"></i> Gamification Hub
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'ptm_list' %}" class="nav-link {% if request.resolver_match.url_name == 'ptm_list' %}active{% endif %}">
+                        <i class="fa-solid fa-handshake text-info"></i> PTM Portal
+                    </a>
+                </li>
+
+                {% if user.is_admin %}
+                <li class="nav-item">
+                    <a href="{% url 'awards_management' %}" class="nav-link {% if request.resolver_match.url_name == 'awards_management' %}active{% endif %}">
+                        <i class="fa-solid fa-award text-warning"></i> Student of Month
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'csv_import' %}" class="nav-link {% if request.resolver_match.url_name == 'csv_import' %}active{% endif %}">
+                        <i class="fa-solid fa-file-csv text-success"></i> Bulk CSV Import
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                        <i class="fa-solid fa-sliders text-secondary"></i> Weight Settings
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="nav-item">
+                    <a href="{% url 'report_center' %}" class="nav-link {% if request.resolver_match.url_name == 'report_center' %}active{% endif %}">
+                        <i class="fa-solid fa-file-pdf text-danger"></i> Reports Center
+                    </a>
+                </li>
+
+                <li class="nav-item mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    <a href="/api/docs/" target="_blank" class="nav-link">
+                        <i class="fa-solid fa-code text-warning"></i> Swagger API Docs
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Page Content Wrapper -->
+        <div id="page-content-wrapper">
+            {% if user.is_authenticated %}
+            <!-- Top Navbar -->
+            <nav class="top-navbar d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <h5 class="m-0 fw-bold text-dark">{% block page_title %}Dashboard{% endblock %}</h5>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- DARK MODE TOGGLE BUTTON -->
+                    <button id="themeToggleBtn" class="btn btn-light rounded-circle p-2 shadow-sm border" type="button" title="Toggle Dark / Light Mode" onclick="toggleEduTrackTheme()">
+                        <i id="themeToggleIcon" class="fa-solid fa-moon text-dark fs-5"></i>
+                    </button>
+
+                    <a href="{% url 'notifications_list' %}" class="btn btn-light rounded-circle position-relative p-2 border" title="Notifications">
+                        <i class="fa-solid fa-bell text-warning fs-5"></i>
+                    </a>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill font-monospace">
+                        <i class="fa-solid fa-shield-halved me-1"></i> {{ user.role }}
+                    </span>
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle fw-semibold rounded-pill px-3 border" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-circle-user me-1 text-primary fs-5"></i> {{ user.get_full_name|default:user.username }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li><a class="dropdown-menu-item dropdown-item text-danger" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            {% endif %}
+
+            <!-- Container for Messages & Body -->
+            <div class="container-fluid p-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL CREATE ASSIGNMENT MODAL -->
+    {% if user.is_authenticated and user.is_admin or user.is_teacher %}
+    <div class="modal fade" id="createAssignmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-file-circle-plus text-primary me-2"></i>Create New Assignment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'create_assignment' %}">
+                    {% csrf_token %}
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Assignment Title <span class="text-danger">*</span></label>
+                                <input type="text" name="title" class="form-control" placeholder="e.g. Chapter 4 Calculus Problem Set" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Subject <span class="text-danger">*</span></label>
+                                <select name="subject_id" class="form-select" required>
+                                    <option value="">Select Subject</option>
+                                    {% for s in subjects %}
+                                        <option value="{{ s.id }}">{{ s.name }} ({{ s.code }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Class <span class="text-danger">*</span></label>
+                                <select name="class_id" class="form-select" required>
+                                    <option value="">Select Class</option>
+                                    {% for c in classes %}
+                                        <option value="{{ c.id }}">{{ c.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Division <span class="text-danger">*</span></label>
+                                <select name="division_id" class="form-select" required>
+                                    <option value="">Select Division</option>
+                                    {% for d in divisions %}
+                                        <option value="{{ d.id }}">{{ d.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Due Date <span class="text-danger">*</span></label>
+                                <input type="date" name="due_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Max Marks <span class="text-danger">*</span></label>
+                                <input type="number" step="0.5" name="max_marks" class="form-control" value="100.0" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Assignment Instructions & Description</label>
+                                <textarea name="description" class="form-control" rows="3" placeholder="Provide instructions for students..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
+                            <i class="fa-solid fa-check me-1"></i> Post Assignment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dark Mode Theme Engine Script -->
+    <script>
+        function applyEduTrackTheme(theme) {
+            const icon = document.getElementById('themeToggleIcon');
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+                document.body.classList.add('dark-mode');
+                if (icon) {
+                    icon.className = 'fa-solid fa-sun text-warning fs-5';
+                }
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+                document.body.classList.remove('dark-mode');
+                if (icon) {
+                    icon.className = 'fa-solid fa-moon text-dark fs-5';
+                }
+            }
+        }
+
+        function toggleEduTrackTheme() {
+            const currentTheme = localStorage.getItem('edutrack_theme') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('edutrack_theme', currentTheme);
+            applyEduTrackTheme(currentTheme);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const savedTheme = localStorage.getItem('edutrack_theme') || 'light';
+            applyEduTrackTheme(savedTheme);
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Performance Scoring Settings — Student360{% endblock %}
+{% block page_title %}Holistic Performance Index (HPI) Configurable Weights{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-sliders text-primary me-2"></i>Configure 7-Pillar Weights & Thresholds</h6>
+                <small class="text-muted">Total sum of all pillar weights should equal 100%.</small>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Academic Performance Weight (%)</label>
+                            <input type="number" step="0.5" name="weight_academic" value="{{ setting.weight_academic|default:40 }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Attendance Rate Weight (%)</label>
+                            <input type="number" step="0.5" name="weight_attendance" value="{{ setting.weight_attendance|default:15 }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Behaviour & Conduct Weight (%)</label>
+                            <input type="number" step="0.5" name="weight_behaviour" value="{{ setting.weight_behaviour|default:15 }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Class Participation Weight (%)</label>
+                            <input type="number" step="0.5" name="weight_participation" value="{{ setting.weight_participation|default:10 }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Assignments Completion Weight (%)</label>
+                            <input type="number" step="0.5" name="weight_assignments" value="{{ setting.weight_assignments|default:5 }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Improvement Index Weight (%)</label>
+                            <input type="number" step="0.5" name="weight_improvement" value="{{ setting.weight_improvement|default:10 }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Achievements & Points Weight (%)</label>
+                            <input type="number" step="0.5" name="weight_achievements" value="{{ setting.weight_achievements|default:5 }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-danger">Min Attendance Threshold (%)</label>
+                            <input type="number" step="0.5" name="min_attendance_threshold" value="{{ setting.min_attendance_threshold|default:75 }}" class="form-control border-danger" required>
+                        </div>
+                    </div>
+
+                    <div class="text-end pt-3 border-top">
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Save Weights & Recalculate School Scores
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

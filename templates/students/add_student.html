@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Add New Student — Student360{% endblock %}
+{% block page_title %}Add New Student Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-user-plus text-primary me-2"></i>Create New Student Record</h6>
+                <small class="text-muted">Fill in student details below. User login account will automatically be created.</small>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{% url 'add_student' %}">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Student ID <span class="text-danger">*</span></label>
+                            <input type="text" name="student_id" class="form-control" placeholder="e.g. STU1006" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Roll Number <span class="text-danger">*</span></label>
+                            <input type="number" name="roll_number" class="form-control" placeholder="e.g. 8" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Class <span class="text-danger">*</span></label>
+                            <select name="class_id" class="form-select" required>
+                                <option value="">Select Class</option>
+                                {% for c in classes %}
+                                    <option value="{{ c.id }}">{{ c.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Division <span class="text-danger">*</span></label>
+                            <select name="division_id" class="form-select" required>
+                                <option value="">Select Division</option>
+                                {% for d in divisions %}
+                                    <option value="{{ d.id }}">{{ d.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Gender</label>
+                            <select name="gender" class="form-select">
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="student@school.edu">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Phone Number</label>
+                            <input type="text" name="phone" class="form-control" placeholder="Phone Number">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Default Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="student123 (Default)">
+                        </div>
+                    </div>
+
+                    <div class="text-end pt-3 border-top">
+                        <a href="{% url 'dashboard' %}" class="btn btn-light border rounded-pill me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">
+                            <i class="fa-solid fa-check me-2"></i> Save & Register Student
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

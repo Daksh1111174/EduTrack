@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block title %}My Student Portal — EduTrack{% endblock %}
+{% block page_title %}My Performance Portal — {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<!-- Top Student Profile & Gamification Level Banner -->
+<div class="card border-0 shadow-sm rounded-3 bg-white p-4 mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-7">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon bg-icon-primary rounded-circle" style="width:64px; height:64px; font-size:24px;">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <div>
+                    <h4 class="fw-bold text-dark mb-1">{{ student.full_name }}</h4>
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-1 rounded-pill">
+                            <i class="fa-solid fa-id-card me-1"></i> ID: {{ student.student_id }}
+                        </span>
+                        <span class="badge bg-light text-dark border px-3 py-1 rounded-pill">
+                            {{ student.class_obj.name }} — Division {{ student.division_obj.name }}
+                        </span>
+                        <span class="badge bg-light text-dark border px-3 py-1 rounded-pill">
+                            Roll #: {{ student.roll_number }}
+                        </span>
+                    </div>
+
+                    {% if g_profile %}
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill">
+                            <i class="fa-solid fa-crown me-1"></i> Level {{ g_profile.level }} &bull; {{ g_profile.rank_title }}
+                        </span>
+                        <span class="badge bg-light text-dark border font-monospace px-2.5 py-1 rounded-pill">
+                            {{ g_profile.total_xp }} XP
+                        </span>
+                        <a href="{% url 'gamification_hub' %}" class="small text-primary fw-bold text-decoration-none ms-2">View Gamification Hub &rarr;</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+            <div class="d-inline-block text-center p-3 bg-light rounded-3 border">
+                <span class="text-muted small fw-semibold text-uppercase d-block">Holistic Score (HPI)</span>
+                <h2 class="fw-extrabold text-primary m-0">{{ perf.holistic_score }}<small class="fs-6 text-muted">/100</small></h2>
+                <span class="badge bg-success rounded-pill px-3 mt-1">Status: Excellent</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Exam Marks & Results Table -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-graduation-cap text-primary me-2"></i>My Exam Marks & Subject Results</h6>
+                <a href="{% url 'download_pdf_report' student.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                    <i class="fa-solid fa-file-pdf me-1"></i> Full PDF Report
+                </a>
+            </div>
+            <div class="card-body px-0 pb-0">
+                <div class="table-responsive">
+                    <table class="table custom-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Subject</th>
+                                <th>Exam Name</th>
+                                <th>Marks Obtained</th>
+                                <th>Max Marks</th>
+                                <th>Percentage</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in marks %}
+                                <tr>
+                                    <td class="ps-4 fw-bold text-dark">{{ m.exam.subject.name }}</td>
+                                    <td>{{ m.exam.name }}</td>
+                                    <td class="fw-bold text-primary">{{ m.marks_obtained }}</td>
+                                    <td>{{ m.exam.max_marks }}</td>
+                                    <td class="fw-bold">{{ m.percentage }}%</td>
+                                    <td>
+                                        <span class="badge {% if m.percentage >= 80 %}bg-success{% elif m.percentage >= 60 %}bg-primary{% else %}bg-warning text-dark{% endif %} px-2.5 py-1 rounded-pill">
+                                            {% if m.percentage >= 90 %}A+{% elif m.percentage >= 80 %}A{% elif m.percentage >= 70 %}B{% elif m.percentage >= 60 %}C{% else %}D{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="6" class="text-center py-4 text-muted">No exam mark records published yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Awards & Badges Showcase -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-trophy text-warning me-2"></i>My Badges & Recognitions</h6>
+                <a href="{% url 'gamification_hub' %}" class="btn btn-sm btn-light border rounded-pill px-2.5">Gamification Hub</a>
+            </div>
+            <div class="card-body">
+                <!-- Earned Badges Showcase -->
+                <div class="mb-3">
+                    <span class="fw-bold text-dark small mb-2 d-block">Unlocked Achievement Badges</span>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for sb in earned_badges %}
+                            <span class="badge bg-warning bg-opacity-20 text-dark border border-warning p-2 rounded-3 d-inline-flex align-items-center gap-1" title="{{ sb.badge.description }}">
+                                <i class="fa-solid {{ sb.badge.icon }} text-warning fs-6 me-1"></i> {{ sb.badge.title }}
+                            </span>
+                        {% empty %}
+                            <small class="text-muted">Complete assignments and maintain high attendance to unlock badges!</small>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                {% if awards %}
+                    <div class="list-group list-group-flush">
+                        {% for award in awards %}
+                            <div class="list-group-item px-0 py-2 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-0">
+                                            <i class="fa-solid fa-star text-warning me-1"></i> {{ award.get_award_type_display }}
+                                        </h6>
+                                        <small class="text-muted">Period: {{ award.month }}/{{ award.year }}</small>
+                                    </div>
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill">Awarded</span>
+                                </div>
+                                <a href="{% url 'download_certificate_pdf' award.id %}" class="btn btn-sm btn-outline-warning text-dark border rounded-pill px-3 fw-bold w-100 mt-2">
+                                    <i class="fa-solid fa-award text-warning me-1"></i> Download Certificate PDF
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-2 text-muted">
+                        <small>Student of the Month awards will appear here when decided.</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Class Assignments & Online Submission Section -->
+<div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-book-open text-info me-2"></i>Class Assignments & Submission Portal</h6>
+    </div>
+    <div class="card-body px-0 pb-0">
+        <div class="table-responsive">
+            <table class="table custom-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Assignment Title</th>
+                        <th>Subject</th>
+                        <th>Due Date</th>
+                        <th>Max Marks</th>
+                        <th>Status</th>
+                        <th class="pe-4 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in class_assignments %}
+                        {% with sub=a.user_sub %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark">{{ a.title }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ a.subject.name }}</span></td>
+                            <td class="small">{{ a.due_date|date:"M d, Y" }}</td>
+                            <td class="fw-bold">{{ a.max_marks }}</td>
+                            <td>
+                                {% if sub and sub.status == 'GRADED' %}
+                                    <span class="badge bg-success px-2.5 py-1 rounded-pill">Graded: {{ sub.marks_obtained }}/{{ a.max_marks }}</span>
+                                {% elif sub and sub.status == 'SUBMITTED' %}
+                                    <span class="badge bg-info px-2.5 py-1 rounded-pill">Submitted (Pending Grade)</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill">Pending Submission</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4 text-end">
+                                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#submitAssignmentModal{{ a.id }}">
+                                    <i class="fa-solid fa-upload me-1"></i> Submit Work
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Submit Assignment Modal -->
+                        <div class="modal fade" id="submitAssignmentModal{{ a.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow-lg rounded-4">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-upload text-primary me-2"></i>Submit Assignment</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST" action="{% url 'submit_assignment' a.id %}">
+                                        {% csrf_token %}
+                                        <div class="modal-body p-4">
+                                            <p class="small text-muted mb-3">Submitting work for <b>{{ a.title }}</b> ({{ a.subject.name }}). Due date: {{ a.due_date|date:"M d, Y" }}.</p>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">Submission Content / Notes / Drive Link</label>
+                                                <textarea name="remarks" class="form-control" rows="4" placeholder="Paste your homework text, summary, or Google Drive link here..." required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0 pt-0">
+                                            <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Submit Assignment</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endwith %}
+                    {% empty %}
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No pending class assignments.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

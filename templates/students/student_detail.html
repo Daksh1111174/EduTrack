@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student.full_name }} — 360 Performance Profile{% endblock %}
+{% block page_title %}Student 360 Performance Profile{% endblock %}
+
+{% block content %}
+<!-- Student Header Banner -->
+<div class="card border-0 shadow-sm rounded-3 p-4 mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-icon-primary" style="width:64px; height:64px;">
+                <i class="fa-solid fa-user-graduate fs-2"></i>
+            </div>
+            <div>
+                <h3 class="fw-bold text-dark mb-1">{{ student.full_name }}</h3>
+                <p class="text-muted mb-0">
+                    <span class="font-monospace text-primary fw-bold">{{ student.student_id }}</span> |
+                    {{ student.class_obj.name }} - {{ student.division_obj.name }} | Roll #{{ student.roll_number }}
+                </p>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'download_pdf_report' student.id %}" class="btn btn-danger rounded-pill px-3 shadow-sm">
+                <i class="fa-solid fa-file-pdf me-2"></i> Download 360 PDF Report
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- HPI Score Banner -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card text-center p-3">
+            <span class="text-muted small fw-semibold text-uppercase d-block">Holistic Performance Index</span>
+            <span class="hpi-badge text-primary">{{ perf.holistic_score }}</span>
+            <small class="text-muted d-block">/ 100 HPI</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center p-3">
+            <span class="text-muted small fw-semibold text-uppercase d-block">Academic Average</span>
+            <span class="fs-2 fw-extrabold text-dark">{{ perf.academic_score }}%</span>
+            <small class="text-muted d-block">Weight: 40%</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center p-3">
+            <span class="text-muted small fw-semibold text-uppercase d-block">Attendance Rate</span>
+            <span class="fs-2 fw-extrabold text-success">{{ perf.attendance_score }}%</span>
+            <small class="text-muted d-block">Weight: 15%</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center p-3">
+            <span class="text-muted small fw-semibold text-uppercase d-block">Risk Assessment</span>
+            <div class="mt-2">
+                <span class="badge badge-risk-{{ perf.risk_level|lower }} fs-6 px-3 py-2 rounded-pill">
+                    {{ perf.get_risk_level_display }}
+                </span>
+            </div>
+            <small class="text-muted d-block mt-1">Rule Engine Status</small>
+        </div>
+    </div>
+</div>
+
+<!-- 360 Tabbed Container -->
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 pt-3">
+        <ul class="nav nav-tabs card-header-tabs" id="studentTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active fw-bold" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview">
+                    <i class="fa-solid fa-chart-pie me-1"></i> Overview
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold" id="academics-tab" data-bs-toggle="tab" data-bs-target="#academics">
+                    <i class="fa-solid fa-book-open me-1"></i> Marks ({{ marks.count }})
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance">
+                    <i class="fa-solid fa-calendar-days me-1"></i> Attendance
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold" id="behaviour-tab" data-bs-toggle="tab" data-bs-target="#behaviour">
+                    <i class="fa-solid fa-masks-theater me-1"></i> Behaviour & Conduct
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold" id="achievements-tab" data-bs-toggle="tab" data-bs-target="#achievements">
+                    <i class="fa-solid fa-trophy me-1"></i> Achievements & Remarks
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card-body p-4">
+        <div class="tab-content" id="studentTabsContent">
+            <!-- TAB 1: OVERVIEW -->
+            <div class="tab-pane fade show active" id="overview">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <h6 class="fw-bold text-dark mb-3">7-Pillar Performance Scores</h6>
+                        <ul class="list-group list-group-flush border rounded-3">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-graduation-cap text-primary me-2"></i> Academic Score</span>
+                                <span class="fw-bold">{{ perf.academic_score }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-calendar-check text-success me-2"></i> Attendance Score</span>
+                                <span class="fw-bold">{{ perf.attendance_score }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-smile text-warning me-2"></i> Behaviour Rating</span>
+                                <span class="fw-bold">{{ perf.behaviour_score }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-comments text-info me-2"></i> Class Participation</span>
+                                <span class="fw-bold">{{ perf.participation_score }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-list-check text-secondary me-2"></i> Assignments Score</span>
+                                <span class="fw-bold">{{ perf.assignment_score }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-arrow-trend-up text-danger me-2"></i> Improvement Index</span>
+                                <span class="fw-bold">{{ perf.improvement_score }}%</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fa-solid fa-medal text-warning me-2"></i> Achievements Score</span>
+                                <span class="fw-bold">{{ perf.achievement_score }}%</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="p-3 border rounded-3 bg-light mb-3">
+                            <h6 class="fw-bold text-dark"><i class="fa-solid fa-robot text-primary me-2"></i>AI Risk Assessment & Guidance</h6>
+                            <p class="small text-secondary mb-0 mt-2">{{ perf.risk_recommendation }}</p>
+                        </div>
+
+                        <h6 class="fw-bold text-dark mb-2">Strengths & Key Highlights</h6>
+                        <ul class="small text-success mb-3">
+                            {% if perf.attendance_score >= 85 %}<li>Consistently high attendance rate above 85%.</li>{% endif %}
+                            {% if perf.academic_score >= 75 %}<li>Solid academic proficiency across exam subjects.</li>{% endif %}
+                            {% if perf.behaviour_score >= 80 %}<li>Exemplary classroom discipline and peer cooperation.</li>{% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: ACADEMICS -->
+            <div class="tab-pane fade" id="academics">
+                <div class="table-responsive">
+                    <table class="table custom-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Exam</th>
+                                <th>Subject</th>
+                                <th>Date</th>
+                                <th>Marks Obtained</th>
+                                <th>Max Marks</th>
+                                <th>Percentage</th>
+                                <th>Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in marks %}
+                                <tr>
+                                    <td class="fw-bold">{{ m.exam.name }}</td>
+                                    <td>{{ m.exam.subject.name }}</td>
+                                    <td>{{ m.exam.date }}</td>
+                                    <td class="fw-bold text-primary">{{ m.marks_obtained }}</td>
+                                    <td>{{ m.exam.max_marks }}</td>
+                                    <td>{{ m.percentage }}%</td>
+                                    <td><span class="badge bg-primary">{{ m.grade }}</span></td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="7" class="text-center py-3 text-muted">No marks recorded.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: ATTENDANCE -->
+            <div class="tab-pane fade" id="attendance">
+                <div class="table-responsive">
+                    <table class="table custom-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Marked By</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in attendance %}
+                                <tr>
+                                    <td>{{ a.date }}</td>
+                                    <td>
+                                        <span class="badge {% if a.status == 'PRESENT' %}bg-success{% elif a.status == 'ABSENT' %}bg-danger{% else %}bg-warning{% endif %}">
+                                            {{ a.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ a.marked_by.username|default:"System" }}</td>
+                                    <td>{{ a.remarks|default:"-" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="4" class="text-center py-3 text-muted">No attendance logs found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: BEHAVIOUR -->
+            <div class="tab-pane fade" id="behaviour">
+                {% if behaviour %}
+                    {% for b in behaviour %}
+                        <div class="p-3 border rounded-3 mb-3 bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="fw-bold m-0 text-dark">Observation on {{ b.date }}</h6>
+                                <span class="badge bg-primary fs-6">{{ b.average_rating }} / 5.0 Rating</span>
+                            </div>
+                            <div class="row g-2 small text-muted">
+                                <div class="col-6 col-md-3">Discipline: <b>{{ b.discipline }}/5</b></div>
+                                <div class="col-6 col-md-3">Respect: <b>{{ b.respect }}/5</b></div>
+                                <div class="col-6 col-md-3">Responsibility: <b>{{ b.responsibility }}/5</b></div>
+                                <div class="col-6 col-md-3">Punctuality: <b>{{ b.punctuality }}/5</b></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted">No behaviour logs recorded.</div>
+                {% endif %}
+            </div>
+
+            <!-- TAB 5: ACHIEVEMENTS & REMARKS -->
+            <div class="tab-pane fade" id="achievements">
+                <h6 class="fw-bold text-dark mb-3">Student Achievements</h6>
+                {% for ach in achievements %}
+                    <div class="p-3 border rounded-3 mb-2 bg-light d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold m-0 text-dark">{{ ach.title }}</h6>
+                            <span class="text-muted small">{{ ach.get_category_display }} | {{ ach.get_level_display }}</span>
+                        </div>
+                        <span class="badge bg-warning text-dark font-monospace">+{{ ach.points }} Points</span>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No achievements listed.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

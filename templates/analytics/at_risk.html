@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block title %}At-Risk Student Monitoring & Risk Analytics — Student360{% endblock %}
+{% block page_title %}At-Risk Student Intelligence & Intervention Hub{% endblock %}
+
+{% block content %}
+<!-- Top Executive Risk KPI Summary Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-danger border-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-bold text-uppercase d-block mb-1">High Risk Flagged</span>
+                    <h3 class="fw-extrabold text-danger m-0">{{ high_risk_count }}</h3>
+                    <small class="text-muted">Requires Immediate Intervention</small>
+                </div>
+                <div class="stat-icon bg-danger bg-opacity-10 text-danger rounded-circle p-3">
+                    <i class="fa-solid fa-triangle-exclamation fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-warning border-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-bold text-uppercase d-block mb-1">Medium Risk Warning</span>
+                    <h3 class="fw-extrabold text-warning m-0">{{ medium_risk_count }}</h3>
+                    <small class="text-muted">Monitored for Trajectory Drop</small>
+                </div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-circle p-3">
+                    <i class="fa-solid fa-circle-exclamation fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-primary border-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-bold text-uppercase d-block mb-1">Avg At-Risk HPI</span>
+                    <h3 class="fw-extrabold text-primary m-0">{{ avg_at_risk_hpi }}<small class="fs-6 text-muted">/100</small></h3>
+                    <small class="text-muted">Flagged Cohort Baseline</small>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3">
+                    <i class="fa-solid fa-chart-line fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 border-start border-info border-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-bold text-uppercase d-block mb-1">Critical Attendance</span>
+                    <h3 class="fw-extrabold text-info m-0">{{ critical_att_count }}</h3>
+                    <small class="text-muted">Below 75% Threshold</small>
+                </div>
+                <div class="stat-icon bg-info bg-opacity-10 text-info rounded-circle p-3">
+                    <i class="fa-solid fa-user-clock fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Chart Visualizations Row -->
+<div class="row g-4 mb-4">
+    <!-- Risk Distribution Chart -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-chart-pie text-danger me-2"></i>Institutional Risk Level Distribution</h6>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center p-4">
+                <div style="width: 100%; max-width: 320px; height: 260px;">
+                    <canvas id="riskDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class-Wise At-Risk Breakdown Bar Chart -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-chart-column text-primary me-2"></i>Class-Wise At-Risk Exposure Heatmap</h6>
+            </div>
+            <div class="card-body p-4">
+                <div style="height: 260px;">
+                    <canvas id="classRiskChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flagged Students Intervention Roster Table -->
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 pt-3 pb-3 d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-list-check text-danger me-2"></i>AI Risk Detection Engine — Flagged Student Intervention Roster</h6>
+        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-1.5 rounded-pill font-monospace">{{ at_risk_list.count }} Flagged Students</span>
+    </div>
+
+    <div class="card-body px-0 pb-0">
+        <div class="table-responsive">
+            <table class="table custom-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Student</th>
+                        <th>Class & Division</th>
+                        <th>HPI Score</th>
+                        <th>Academic</th>
+                        <th>Attendance</th>
+                        <th>Risk Level</th>
+                        <th>AI Recommended Intervention</th>
+                        <th class="pe-4 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in at_risk_list %}
+                        <tr>
+                            <td class="ps-4 fw-bold">
+                                <a href="{% url 'student_detail' item.student.id %}" class="text-decoration-none text-dark">
+                                    {{ item.student.full_name }}
+                                </a>
+                                <small class="d-block text-muted">ID: {{ item.student.student_id }}</small>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">{{ item.student.class_obj.name }} - {{ item.student.division_obj.name }}</span></td>
+                            <td class="fw-bold text-primary fs-6">{{ item.holistic_score }}</td>
+                            <td class="fw-bold">{{ item.academic_score }}%</td>
+                            <td class="fw-bold {% if item.attendance_score < 75 %}text-danger{% endif %}">{{ item.attendance_score }}%</td>
+                            <td>
+                                {% if item.risk_level == 'HIGH' %}
+                                    <span class="badge bg-danger px-2.5 py-1 rounded-pill">High Risk</span>
+                                {% elif item.risk_level == 'MEDIUM' %}
+                                    <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill">Medium Warning</span>
+                                {% else %}
+                                    <span class="badge bg-success px-2.5 py-1 rounded-pill">Low Risk</span>
+                                {% endif %}
+                            </td>
+                            <td class="small text-muted" style="max-width: 300px;">{{ item.risk_recommendation }}</td>
+                            <td class="pe-4 text-end">
+                                <a href="{% url 'student_detail' item.student.id %}" class="btn btn-sm btn-primary rounded-pill px-3 me-1">
+                                    <i class="fa-solid fa-user-gear me-1"></i> 360 Review
+                                </a>
+                                <a href="{% url 'ptm_list' %}" class="btn btn-sm btn-outline-info rounded-pill px-2.5">
+                                    <i class="fa-solid fa-handshake me-1"></i> PTM
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="8" class="text-center py-4 text-muted">No students currently flagged for academic or attendance risk.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Risk Distribution Doughnut Chart
+    const ctxRisk = document.getElementById('riskDistributionChart').getContext('2d');
+    new Chart(ctxRisk, {
+        type: 'doughnut',
+        data: {
+            labels: ['High Risk', 'Medium Risk', 'Low Risk', 'Healthy'],
+            datasets: [{
+                data: [{{ high_risk_count }}, {{ medium_risk_count }}, {{ low_risk_count }}, {{ healthy_count }}],
+                backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { family: 'Plus Jakarta Sans', size: 11 } }
+                }
+            },
+            cutout: '68%'
+        }
+    });
+
+    // 2. Class-Wise Risk Exposure Bar Chart
+    const ctxClass = document.getElementById('classRiskChart').getContext('2d');
+    new Chart(ctxClass, {
+        type: 'bar',
+        data: {
+            labels: {{ class_risk_labels|safe }},
+            datasets: [{
+                label: 'Flagged At-Risk Students',
+                data: {{ class_risk_counts|safe }},
+                backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                borderColor: '#ef4444',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

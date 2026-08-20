@@ -1,0 +1,302 @@
+:root {
+    --primary-color: #0D472B;
+    --primary-dark: #072B1A;
+    --primary-light: #166534;
+    --gold-color: #D4AF37;
+    --gold-dark: #B59024;
+    --gold-light: #FEF08A;
+    --gold-gradient: linear-gradient(135deg, #F59E0B 0%, #D4AF37 100%);
+    --forest-gradient: linear-gradient(180deg, #092C1A 0%, #051C11 100%);
+    --sidebar-bg: #092C1A;
+    --sidebar-hover: #124A2D;
+    --card-bg: #ffffff;
+    --text-primary: #0F172A;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --success-color: #10b981;
+    --warning-color: #d4af37;
+    --danger-color: #ef4444;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #FDFBF7;
+    color: var(--text-primary);
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Primary Button Styling - EduTrack Forest Green */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(13, 71, 43, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(13, 71, 43, 0.35);
+}
+
+/* Gold Button Styling */
+.btn-warning, .btn-gold {
+    background: var(--gold-gradient) !important;
+    border-color: var(--gold-dark) !important;
+    color: #072B1A !important;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.btn-warning:hover, .btn-gold:hover {
+    background: linear-gradient(135deg, #d97706 0%, #b59024 100%) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+/* Sidebar Styling - Luxury Forest Green & Gold */
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: 340px;
+    background: var(--forest-gradient);
+    color: #f8fafc;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-nav {
+    padding: 0.5rem 0.75rem;
+    list-style: none;
+}
+
+.sidebar-nav .nav-link {
+    color: #a7f3d0;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav .nav-link:hover {
+    color: #ffffff;
+    background-color: var(--sidebar-hover);
+    transform: translateX(3px);
+}
+
+.sidebar-nav .nav-link.active {
+    color: #072B1A !important;
+    background: var(--gold-gradient) !important;
+    font-weight: 800;
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
+}
+
+.sidebar-nav .nav-link.active i {
+    color: #072B1A !important;
+}
+
+/* Main Content Area */
+#page-content-wrapper {
+    flex: 1;
+    overflow-x: hidden;
+}
+
+/* Top Header Navbar */
+.top-navbar {
+    background-color: #ffffff;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 0.85rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(13, 71, 43, 0.04);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Cards & Widgets */
+.stat-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 14px;
+    padding: 1.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(13, 71, 43, 0.08);
+}
+
+.stat-card.gold-border {
+    border-top-color: var(--gold-color) !important;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+}
+
+.bg-icon-primary { background: #dcfce7; color: var(--primary-color); }
+.bg-icon-success { background: #fef9c3; color: var(--gold-dark); }
+.bg-icon-warning { background: #fffbeb; color: #d97706; }
+.bg-icon-danger  { background: #fef2f2; color: #ef4444; }
+.bg-icon-purple  { background: #f3e8ff; color: #9333ea; }
+
+.hpi-badge {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--primary-color);
+}
+
+/* Badge & Status Pill */
+.badge-risk-high { background-color: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.badge-risk-medium { background-color: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.badge-risk-low { background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+.badge-edutrack-green { background-color: #dcfce7; color: var(--primary-color); border: 1px solid #a7f3d0; }
+.badge-edutrack-gold { background-color: #fef9c3; color: var(--gold-dark); border: 1px solid #fef08a; }
+
+/* Table Customization */
+.custom-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.custom-table th {
+    background-color: #f8faf6;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 0.825rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0;
+}
+.custom-table td {
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* Form Focus Customization */
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 71, 43, 0.15) !important;
+}
+
+/* ==========================================
+   EDUTRACK DARK MODE THEME SYSTEM OVERRIDES
+   ========================================== */
+[data-bs-theme="dark"], body.dark-mode {
+    --bg-body: #0F172A;
+    --bg-card: #1E293B;
+    --text-primary: #F8FAFC;
+    --text-muted: #94A3B8;
+    --border-color: #334155;
+    background-color: var(--bg-body) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-bs-theme="dark"] .top-navbar, body.dark-mode .top-navbar {
+    background-color: #1E293B !important;
+    border-bottom-color: #334155 !important;
+    color: #F8FAFC !important;
+}
+
+[data-bs-theme="dark"] .top-navbar h5, body.dark-mode .top-navbar h5 {
+    color: #F8FAFC !important;
+}
+
+[data-bs-theme="dark"] .card, body.dark-mode .card,
+[data-bs-theme="dark"] .stat-card, body.dark-mode .stat-card,
+[data-bs-theme="dark"] .card-header, body.dark-mode .card-header,
+[data-bs-theme="dark"] .card-footer, body.dark-mode .card-footer {
+    background-color: #1E293B !important;
+    border-color: #334155 !important;
+    color: #F8FAFC !important;
+}
+
+[data-bs-theme="dark"] .text-dark, body.dark-mode .text-dark {
+    color: #F8FAFC !important;
+}
+
+[data-bs-theme="dark"] .text-muted, body.dark-mode .text-muted {
+    color: #94A3B8 !important;
+}
+
+[data-bs-theme="dark"] .bg-white, body.dark-mode .bg-white {
+    background-color: #1E293B !important;
+    color: #F8FAFC !important;
+}
+
+[data-bs-theme="dark"] .bg-light, body.dark-mode .bg-light {
+    background-color: #0F172A !important;
+    color: #F8FAFC !important;
+}
+
+[data-bs-theme="dark"] .custom-table th, body.dark-mode .custom-table th {
+    background-color: #1E293B !important;
+    color: #34D399 !important;
+    border-bottom-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .custom-table td, body.dark-mode .custom-table td {
+    border-bottom-color: #334155 !important;
+    color: #F8FAFC !important;
+}
+
+[data-bs-theme="dark"] .modal-content, body.dark-mode .modal-content {
+    background-color: #1E293B !important;
+    color: #F8FAFC !important;
+    border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select,
+body.dark-mode .form-control, body.dark-mode .form-select {
+    background-color: #0F172A !important;
+    color: #F8FAFC !important;
+    border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .dropdown-menu, body.dark-mode .dropdown-menu {
+    background-color: #1E293B !important;
+    border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .dropdown-item, body.dark-mode .dropdown-item {
+    color: #F8FAFC !important;
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover, body.dark-mode .dropdown-item:hover {
+    background-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .list-group-item, body.dark-mode .list-group-item {
+    background-color: #1E293B !important;
+    color: #F8FAFC !important;
+    border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .btn-light, body.dark-mode .btn-light {
+    background-color: #334155 !important;
+    color: #F8FAFC !important;
+    border-color: #475569 !important;
+}

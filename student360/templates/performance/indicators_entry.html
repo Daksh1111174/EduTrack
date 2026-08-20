@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+
+{% block title %}Log Performance Indicators — Student360{% endblock %}
+{% block page_title %}Evaluation Center — Holistic Performance Indicators Entry{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <ul class="nav nav-tabs card-header-tabs id-tabs" id="indicatorTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold text-dark" id="behaviour-tab" data-bs-toggle="tab" data-bs-target="#behaviour" type="button" role="tab">
+                            <i class="fa-solid fa-masks-theater text-warning me-1"></i> Behaviour Rating
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="participation-tab" data-bs-toggle="tab" data-bs-target="#participation" type="button" role="tab">
+                            <i class="fa-solid fa-hand me-1 text-purple" style="color:#8b5cf6;"></i> Class Participation
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="assignment-tab" data-bs-toggle="tab" data-bs-target="#assignment" type="button" role="tab">
+                            <i class="fa-solid fa-book-open text-info me-1"></i> Assignment Score
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="improvement-tab" data-bs-toggle="tab" data-bs-target="#improvement" type="button" role="tab">
+                            <i class="fa-solid fa-chart-line text-success me-1"></i> Improvement Index
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark" id="achievement-tab" data-bs-toggle="tab" data-bs-target="#achievement" type="button" role="tab">
+                            <i class="fa-solid fa-trophy text-danger me-1"></i> Achievement Score
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="tab-content" id="indicatorTabsContent">
+                    
+                    <!-- 1. BEHAVIOUR RATING FORM -->
+                    <div class="tab-pane fade show active" id="behaviour" role="tabpanel">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-masks-theater text-warning me-2"></i>Log Student Behaviour Rating</h6>
+                        <form method="POST" action="{% url 'indicators_entry' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="indicator_type" value="behaviour">
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Select Student <span class="text-danger">*</span></label>
+                                <select name="student_id" class="form-select" required>
+                                    <option value="">Select Student...</option>
+                                    {% for s in students %}
+                                        <option value="{{ s.id }}">{{ s.full_name }} ({{ s.student_id }} — {{ s.class_obj.name }} {{ s.division_obj.name }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Discipline (1-5)</label>
+                                    <input type="number" min="1" max="5" name="discipline" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Respect (1-5)</label>
+                                    <input type="number" min="1" max="5" name="respect" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Responsibility (1-5)</label>
+                                    <input type="number" min="1" max="5" name="responsibility" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Cooperation (1-5)</label>
+                                    <input type="number" min="1" max="5" name="cooperation" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Punctuality (1-5)</label>
+                                    <input type="number" min="1" max="5" name="punctuality" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Class Conduct (1-5)</label>
+                                    <input type="number" min="1" max="5" name="classroom_conduct" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Leadership (1-5)</label>
+                                    <input type="number" min="1" max="5" name="leadership" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Teamwork (1-5)</label>
+                                    <input type="number" min="1" max="5" name="teamwork" class="form-control" value="4" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Teacher Notes / Remarks</label>
+                                <textarea name="notes" class="form-control" rows="2" placeholder="e.g. Excellent conduct and active leadership during class discussions."></textarea>
+                            </div>
+
+                            <div class="text-end border-top pt-3">
+                                <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold text-dark">
+                                    <i class="fa-solid fa-check me-1"></i> Save Behaviour Rating
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 2. CLASS PARTICIPATION FORM -->
+                    <div class="tab-pane fade" id="participation" role="tabpanel">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-hand me-2" style="color:#8b5cf6;"></i>Log Class Participation Score</h6>
+                        <form method="POST" action="{% url 'indicators_entry' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="indicator_type" value="participation">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Select Student <span class="text-danger">*</span></label>
+                                <select name="student_id" class="form-select" required>
+                                    <option value="">Select Student...</option>
+                                    {% for s in students %}
+                                        <option value="{{ s.id }}">{{ s.full_name }} ({{ s.student_id }} — {{ s.class_obj.name }} {{ s.division_obj.name }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Class Participation (1-5)</label>
+                                    <input type="number" min="1" max="5" name="class_participation" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Question Asking (1-5)</label>
+                                    <input type="number" min="1" max="5" name="question_asking" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Presentation Skills (1-5)</label>
+                                    <input type="number" min="1" max="5" name="presentation" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Group Activities (1-5)</label>
+                                    <input type="number" min="1" max="5" name="group_activities" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Leadership (1-5)</label>
+                                    <input type="number" min="1" max="5" name="leadership" class="form-control" value="4" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-semibold">Extracurricular (1-5)</label>
+                                    <input type="number" min="1" max="5" name="extracurricular" class="form-control" value="4" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Notes / Activity Details</label>
+                                <textarea name="notes" class="form-control" rows="2" placeholder="e.g. Actively led the science project presentation."></textarea>
+                            </div>
+
+                            <div class="text-end border-top pt-3">
+                                <button type="submit" class="btn btn-purple text-white rounded-pill px-4 fw-bold" style="background-color:#8b5cf6;">
+                                    <i class="fa-solid fa-check me-1"></i> Save Participation Record
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 3. ASSIGNMENT SCORE FORM -->
+                    <div class="tab-pane fade" id="assignment" role="tabpanel">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-book-open text-info me-2"></i>Log Assignment Grade & Submission</h6>
+                        <form method="POST" action="{% url 'indicators_entry' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="indicator_type" value="assignment">
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Select Assignment <span class="text-danger">*</span></label>
+                                    <select name="assignment_id" class="form-select" required>
+                                        <option value="">Select Assignment...</option>
+                                        {% for a in assignments %}
+                                            <option value="{{ a.id }}">{{ a.title }} ({{ a.subject.name }} — Max: {{ a.max_marks }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Select Student <span class="text-danger">*</span></label>
+                                    <select name="student_id" class="form-select" required>
+                                        <option value="">Select Student...</option>
+                                        {% for s in students %}
+                                            <option value="{{ s.id }}">{{ s.full_name }} ({{ s.student_id }} — {{ s.class_obj.name }} {{ s.division_obj.name }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Marks Obtained <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.5" name="marks_obtained" class="form-control" placeholder="e.g. 85" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Work Quality Rating (1-5)</label>
+                                    <input type="number" min="1" max="5" name="quality_rating" class="form-control" value="4">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Teacher Remarks / Feedback</label>
+                                <input type="text" name="remarks" class="form-control" placeholder="e.g. Thorough research and well-organized submission.">
+                            </div>
+
+                            <div class="text-end border-top pt-3">
+                                <button type="submit" class="btn btn-info text-white rounded-pill px-4 fw-bold">
+                                    <i class="fa-solid fa-check me-1"></i> Save Assignment Score
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 4. IMPROVEMENT INDEX FORM -->
+                    <div class="tab-pane fade" id="improvement" role="tabpanel">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-chart-line text-success me-2"></i>Update Academic Improvement Index</h6>
+                        <form method="POST" action="{% url 'indicators_entry' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="indicator_type" value="improvement">
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Select Student <span class="text-danger">*</span></label>
+                                    <select name="student_id" class="form-select" required>
+                                        <option value="">Select Student...</option>
+                                        {% for s in students %}
+                                            <option value="{{ s.id }}">{{ s.full_name }} ({{ s.student_id }} — {{ s.class_obj.name }} {{ s.division_obj.name }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Improvement Index Score (0 - 100%) <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.1" min="0" max="100" name="improvement_score" class="form-control" placeholder="e.g. 85.0" required>
+                                    <small class="text-muted">Calculated based on positive progression in consecutive term exams.</small>
+                                </div>
+                            </div>
+
+                            <div class="text-end border-top pt-3">
+                                <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">
+                                    <i class="fa-solid fa-check me-1"></i> Save Improvement Score
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 5. ACHIEVEMENT SCORE FORM -->
+                    <div class="tab-pane fade" id="achievement" role="tabpanel">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-trophy text-danger me-2"></i>Log Co-Curricular & Extra-Curricular Achievement</h6>
+                        <form method="POST" action="{% url 'indicators_entry' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="indicator_type" value="achievement">
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Select Student <span class="text-danger">*</span></label>
+                                    <select name="student_id" class="form-select" required>
+                                        <option value="">Select Student...</option>
+                                        {% for s in students %}
+                                            <option value="{{ s.id }}">{{ s.full_name }} ({{ s.student_id }} — {{ s.class_obj.name }} {{ s.division_obj.name }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Achievement Title <span class="text-danger">*</span></label>
+                                    <input type="text" name="title" class="form-control" placeholder="e.g. 1st Place Science Olympiad" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Category</label>
+                                    <select name="category" class="form-select">
+                                        <option value="ACADEMIC">Academic Excellence</option>
+                                        <option value="SPORTS">Sports & Athletics</option>
+                                        <option value="CULTURAL">Cultural & Arts</option>
+                                        <option value="SOCIAL">Community Service</option>
+                                        <option value="LEADERSHIP">Leadership</option>
+                                        <option value="OTHER">Other Contribution</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Competition Level</label>
+                                    <select name="level" class="form-select">
+                                        <option value="SCHOOL">School Level (5 pts)</option>
+                                        <option value="DISTRICT">District Level (10 pts)</option>
+                                        <option value="STATE">State Level (20 pts)</option>
+                                        <option value="NATIONAL">National Level (30 pts)</option>
+                                        <option value="INTERNATIONAL">International Level (40 pts)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Points Assigned</label>
+                                    <input type="number" name="points" class="form-control" value="10">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Achievement Description</label>
+                                <textarea name="description" class="form-control" rows="2" placeholder="e.g. Secured Gold Medal in Inter-School Table Tennis Championship."></textarea>
+                            </div>
+
+                            <div class="text-end border-top pt-3">
+                                <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">
+                                    <i class="fa-solid fa-check me-1"></i> Save Achievement Record
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

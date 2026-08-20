@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Registration — Student360{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100 my-n4 py-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-lg rounded-4 p-4">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="stat-icon bg-icon-success mx-auto mb-3" style="width:60px; height:60px;">
+                        <i class="fa-solid fa-user-graduate fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">Student Registration</h3>
+                    <p class="text-muted small">Create your Student360 account to access your performance portal</p>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Username <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control bg-light" placeholder="Choose username" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Student ID <span class="text-danger">*</span></label>
+                            <input type="text" name="student_id" class="form-control bg-light" placeholder="e.g. STU1008" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">First Name <span class="text-danger">*</span></label>
+                            <input type="text" name="first_name" class="form-control bg-light" placeholder="First Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" name="last_name" class="form-control bg-light" placeholder="Last Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Class <span class="text-danger">*</span></label>
+                            <select name="class_id" class="form-select bg-light" required>
+                                <option value="">Select Class</option>
+                                {% for c in classes %}
+                                    <option value="{{ c.id }}">{{ c.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Division <span class="text-danger">*</span></label>
+                            <select name="division_id" class="form-select bg-light" required>
+                                <option value="">Select Division</option>
+                                {% for d in divisions %}
+                                    <option value="{{ d.id }}">{{ d.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Roll Number <span class="text-danger">*</span></label>
+                            <input type="number" name="roll_number" class="form-control bg-light" placeholder="Roll Number" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Gender</label>
+                            <select name="gender" class="form-select bg-light">
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Email</label>
+                            <input type="email" name="email" class="form-control bg-light" placeholder="email@school.edu">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Phone Number</label>
+                            <input type="text" name="phone" class="form-control bg-light" placeholder="Phone Number">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Password <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control bg-light" placeholder="Create Password" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Confirm Password <span class="text-danger">*</span></label>
+                            <input type="password" name="confirm_password" class="form-control bg-light" placeholder="Confirm Password" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2.5 fw-bold rounded-3 mb-3 shadow-sm">
+                        <i class="fa-solid fa-user-plus me-2"></i> Register Account & Sign In
+                    </button>
+                </form>
+
+                <div class="text-center mt-3 pt-3 border-top">
+                    <span class="text-muted small">Already registered?</span>
+                    <a href="{% url 'login' %}" class="fw-bold text-primary ms-1 text-decoration-none">Back to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

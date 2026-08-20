@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Bulk CSV Import Hub — Student360{% endblock %}
+{% block page_title %}Bulk CSV Import Center{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-file-csv text-success me-2"></i>Import Students, Teachers Roster & Exam Marks</h6>
+                <small class="text-muted">Upload CSV format data files with proper header definitions.</small>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select Data Category</label>
+                        <select name="import_type" class="form-select bg-light" required>
+                            <option value="students">Students Roster CSV</option>
+                            <option value="teachers">Faculty / Teachers Roster CSV</option>
+                            <option value="marks">Exam Marks CSV</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Choose CSV File</label>
+                        <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+                        <small class="form-text text-muted">File format must be standard UTF-8 encoded CSV.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">
+                        <i class="fa-solid fa-upload me-2"></i> Process & Import CSV Data
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-circle-info text-info me-2"></i>Required CSV Header Formats</h6>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <h6 class="fw-bold text-dark mb-1">Students CSV</h6>
+                            <code class="small d-block text-muted">student_id, first_name, last_name, email, phone, gender, class, division, roll_number</code>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <h6 class="fw-bold text-dark mb-1">Teachers CSV</h6>
+                            <code class="small d-block text-muted">employee_id, first_name, last_name, email, phone, department, designation</code>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded-3 border">
+                            <h6 class="fw-bold text-dark mb-1">Exam Marks CSV</h6>
+                            <code class="small d-block text-muted">student_id, exam_id, marks_obtained, remarks</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

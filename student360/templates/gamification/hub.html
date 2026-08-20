@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Gamification Hub — Student360{% endblock %}
+{% block page_title %}Student Gamification & Rewards Hub{% endblock %}
+
+{% block content %}
+{% if my_profile %}
+<!-- Student Level & XP Progress Banner -->
+<div class="card border-0 shadow-sm rounded-3 bg-white p-4 mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-7">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon bg-warning bg-opacity-20 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width:68px; height:68px; font-size:28px;">
+                    <i class="fa-solid fa-crown text-warning"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h4 class="fw-bold text-dark mb-0">Level {{ my_profile.level }} &bull; {{ my_profile.rank_title }}</h4>
+                        <span class="badge bg-warning text-dark font-monospace px-3 py-1 rounded-pill">Total {{ my_profile.total_xp }} XP</span>
+                    </div>
+                    <small class="text-muted d-block mt-1">Keep earning achievements and completing assignments on time to level up!</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 mt-3 mt-md-0">
+            <div class="p-3 bg-light rounded-3 border">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold text-dark small">Level {{ my_profile.level }} Progress</span>
+                    <span class="small font-monospace text-primary fw-bold">{{ my_profile.xp_in_current_level }} / 500 XP ({{ my_profile.xp_needed_for_next_level }} XP to Level {{ my_profile.level|add:"1" }})</span>
+                </div>
+                <div class="progress rounded-pill style-progress" style="height: 12px;">
+                    <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ my_profile.level_progress_percentage }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Streaks Section -->
+    <div class="row g-3 mt-3 pt-3 border-top">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
+                <i class="fa-solid fa-fire text-danger fs-2"></i>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">🔥 {{ my_profile.current_attendance_streak }}-Day Attendance Streak</h6>
+                    <small class="text-muted">Consecutive present days recorded in school.</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
+                <i class="fa-solid fa-bolt text-warning fs-2"></i>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">⚡ {{ my_profile.current_homework_streak }} Completed Homework Submissions</h6>
+                    <small class="text-muted">Assignments submitted on time for teacher evaluation.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row g-4">
+    <!-- Achievement Badges Catalog -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-award text-warning me-2"></i>Achievement Badges Showcase</h6>
+                <span class="badge bg-light text-dark border font-monospace">{{ all_badges.count }} Badges</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for b in all_badges %}
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border h-100 {% if b.id in my_earned_badge_ids %}bg-white border-warning shadow-sm{% else %}bg-light opacity-75{% endif %}">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center {% if b.id in my_earned_badge_ids %}bg-warning bg-opacity-20 text-warning{% else %}bg-secondary bg-opacity-10 text-muted{% endif %}" style="width:48px; height:48px;">
+                                        <i class="fa-solid {{ b.icon }} fs-4"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="fw-bold text-dark mb-0 small">{{ b.title }}</h6>
+                                            {% if b.id in my_earned_badge_ids %}
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-2 py-0.5" style="font-size:10px;">Unlocked</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary bg-opacity-10 text-muted border rounded-pill px-2 py-0.5" style="font-size:10px;">Locked</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="small text-muted mb-2 mt-1" style="font-size:11px;">{{ b.description }}</p>
+                                        <span class="badge bg-warning bg-opacity-10 text-dark border border-warning font-monospace" style="font-size:10px;">
+                                            +{{ b.xp_reward }} XP Reward
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class XP Leaderboard -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-ranking-star text-primary me-2"></i>Class XP Leaderboard</h6>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-1 rounded-pill font-monospace">Top Performers</span>
+            </div>
+            <div class="card-body px-0 pb-0">
+                <div class="table-responsive">
+                    <table class="table custom-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Rank</th>
+                                <th>Student</th>
+                                <th>Level & Rank</th>
+                                <th class="pe-4 text-end">Total XP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in leaderboard %}
+                                <tr {% if current_student and p.student.id == current_student.id %}class="bg-warning bg-opacity-10"{% endif %}>
+                                    <td class="ps-4 fw-bold">
+                                        {% if forloop.counter == 1 %}
+                                            <span class="fs-5">🥇</span>
+                                        {% elif forloop.counter == 2 %}
+                                            <span class="fs-5">🥈</span>
+                                        {% elif forloop.counter == 3 %}
+                                            <span class="fs-5">🥉</span>
+                                        {% else %}
+                                            <span class="text-muted font-monospace">#{{ forloop.counter }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="fw-bold text-dark">
+                                        <a href="{% url 'student_detail' p.student.id %}" class="text-decoration-none text-dark">
+                                            {{ p.student.full_name }}
+                                        </a>
+                                        <small class="d-block text-muted">{{ p.student.class_obj.name }} {{ p.student.division_obj.name }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border font-monospace">Lvl {{ p.level }}</span>
+                                        <small class="d-block text-muted" style="font-size:10px;">{{ p.rank_title }}</small>
+                                    </td>
+                                    <td class="pe-4 text-end fw-extrabold text-primary font-monospace">
+                                        {{ p.total_xp }} XP
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="4" class="text-center py-4 text-muted">No XP recorded yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

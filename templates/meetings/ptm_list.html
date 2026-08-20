@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Parent-Teacher Meeting (PTM) Portal — EduTrack{% endblock %}
+{% block page_title %}Parent-Teacher Meeting (PTM) Portal{% endblock %}
+
+{% block content %}
+<!-- Top Action & Filter Banner -->
+<div class="card border-0 shadow-sm rounded-3 bg-white p-3 mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-info bg-opacity-10 text-info p-3 rounded-circle" style="width:52px; height:52px; display:flex; align-items:center; justify-content:center;">
+                <i class="fa-solid fa-handshake text-info fs-3"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold text-dark mb-0">Parent-Teacher Meeting Collaboration Hub</h6>
+                <small class="text-muted">Schedule, conduct, accept, and review minutes of meetings for student performance reviews.</small>
+            </div>
+        </div>
+        <div>
+            {% if user.is_teacher or user.is_admin or user.is_superuser or user.is_staff %}
+            <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#schedulePtmModal">
+                <i class="fa-solid fa-calendar-plus text-white me-1"></i> Schedule PTM
+            </button>
+            {% else %}
+            <span class="badge bg-light text-dark border font-monospace p-2">View & Accept Scheduled PTMs</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 pt-3 pb-3 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'ptm_list' %}" class="btn btn-sm {% if not selected_status %}btn-dark{% else %}btn-light border{% endif %} rounded-pill">All Meetings</a>
+            <a href="{% url 'ptm_list' %}?status=SCHEDULED" class="btn btn-sm {% if selected_status == 'SCHEDULED' %}btn-primary{% else %}btn-light border{% endif %} rounded-pill">Scheduled</a>
+            <a href="{% url 'ptm_list' %}?status=REQUESTED" class="btn btn-sm {% if selected_status == 'REQUESTED' %}btn-warning text-dark{% else %}btn-light border{% endif %} rounded-pill">Pending Requests</a>
+            <a href="{% url 'ptm_list' %}?status=COMPLETED" class="btn btn-sm {% if selected_status == 'COMPLETED' %}btn-success{% else %}btn-light border{% endif %} rounded-pill">Completed</a>
+        </div>
+        <span class="badge bg-light text-dark border font-monospace">{{ meetings.count }} Meetings</span>
+    </div>
+
+    <div class="card-body px-0 pb-0">
+        <div class="table-responsive">
+            <table class="table custom-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Meeting Topic</th>
+                        <th>Student</th>
+                        <th>Teacher</th>
+                        <th>Date & Time</th>
+                        <th>Mode</th>
+                        <th>Status</th>
+                        <th class="pe-4 text-end">Actions / Minutes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in meetings %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark">
+                                <div>{{ m.title }}</div>
+                                <small class="text-muted d-block text-truncate" style="max-width:200px;">{{ m.agenda_notes|default:"No agenda provided" }}</small>
+                            </td>
+                            <td class="fw-bold text-primary">
+                                {{ m.student.full_name }}
+                                <small class="d-block text-muted">{{ m.student.class_obj.name }} - {{ m.student.division_obj.name }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ m.teacher.full_name }}</div>
+                                <small class="text-muted">{{ m.teacher.department|default:"Faculty" }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ m.date|date:"M d, Y" }}</div>
+                                <small class="text-muted">{{ m.start_time|time:"H:i" }} - {{ m.end_time|time:"H:i" }}</small>
+                            </td>
+                            <td>
+                                {% if m.meeting_type == 'ONLINE' %}
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info px-2.5 py-1 rounded-pill">
+                                        <i class="fa-solid fa-video text-info me-1"></i> Online
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-dark border px-2.5 py-1 rounded-pill">
+                                        <i class="fa-solid fa-building text-secondary me-1"></i> Campus
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if m.status == 'SCHEDULED' %}
+                                    <span class="badge bg-primary px-2.5 py-1 rounded-pill">Scheduled</span>
+                                {% elif m.status == 'REQUESTED' %}
+                                    <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill">Pending</span>
+                                {% elif m.status == 'COMPLETED' %}
+                                    <span class="badge bg-success px-2.5 py-1 rounded-pill">Completed</span>
+                                {% else %}
+                                    <span class="badge bg-danger px-2.5 py-1 rounded-pill">Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4 text-end">
+                                {% if m.status == 'REQUESTED' %}
+                                    <form method="POST" action="{% url 'ptm_update_status' m.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="SCHEDULED">
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 me-1 fw-bold">
+                                            <i class="fa-solid fa-check text-white me-1"></i> Accept PTM
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                {% if m.meeting_type == 'ONLINE' and m.status == 'SCHEDULED' %}
+                                    <a href="{{ m.location_or_link }}" target="_blank" class="btn btn-sm btn-primary rounded-pill px-3 me-1 fw-bold">
+                                        <i class="fa-solid fa-video text-white me-1"></i> Join Meeting
+                                    </a>
+                                {% endif %}
+
+                                <button type="button" class="btn btn-sm btn-light border rounded-pill" data-bs-toggle="modal" data-bs-target="#editPtmModal{{ m.id }}">
+                                    <i class="fa-solid fa-file-lines text-primary me-1"></i> View Minutes
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Edit PTM Status / Minutes Modal -->
+                        <div class="modal fade" id="editPtmModal{{ m.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow-lg rounded-4">
+                                    <div class="modal-header border-0 pb-0">
+                                        <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-clipboard-check text-primary me-2"></i>PTM Minutes & Status</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST" action="{% url 'ptm_update_status' m.id %}">
+                                        {% csrf_token %}
+                                        <div class="modal-body p-4">
+                                            {% if user.is_teacher or user.is_admin or user.is_superuser or user.is_staff %}
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">Update Meeting Status</label>
+                                                <select name="status" class="form-select">
+                                                    <option value="SCHEDULED" {% if m.status == 'SCHEDULED' %}selected{% endif %}>Scheduled / Confirmed</option>
+                                                    <option value="COMPLETED" {% if m.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                                    <option value="CANCELLED" {% if m.status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                                                </select>
+                                            </div>
+                                            {% endif %}
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">Meeting Summary & Actionable Feedback</label>
+                                                <textarea name="summary_feedback" class="form-control" rows="4" placeholder="Record discussion summary, academic advice, and teacher/parent action points..." {% if not user.is_teacher and not user.is_admin and not user.is_superuser and not user.is_staff %}readonly{% endif %}>{{ m.summary_feedback|default:"No minutes recorded yet." }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0 pt-0">
+                                            <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Close</button>
+                                            {% if user.is_teacher or user.is_admin or user.is_superuser or user.is_staff %}
+                                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">Save Minutes</button>
+                                            {% endif %}
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <tr><td colspan="7" class="text-center py-4 text-muted">No Parent-Teacher Meetings recorded.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if user.is_teacher or user.is_admin or user.is_superuser or user.is_staff %}
+<!-- Schedule PTM Modal -->
+<div class="modal fade" id="schedulePtmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-calendar-plus text-primary me-2"></i>Schedule Parent-Teacher Meeting</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'ptm_schedule' %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Meeting Title / Topic <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Term 1 Progress & Attendance Review" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Student <span class="text-danger">*</span></label>
+                            <select name="student_id" class="form-select" required>
+                                <option value="">Select Student...</option>
+                                {% for s in students %}
+                                    <option value="{{ s.id }}">{{ s.full_name }} ({{ s.student_id }} — {{ s.class_obj.name }} {{ s.division_obj.name }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Teacher Field: Locked to current teacher if logged in as Teacher -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Teacher / Faculty <span class="text-danger">*</span></label>
+                            {% if user.is_teacher and current_teacher %}
+                                <input type="text" class="form-control bg-light text-dark fw-bold" value="{{ current_teacher.full_name }} ({{ current_teacher.department|default:'Faculty' }})" readonly>
+                                <input type="hidden" name="teacher_id" value="{{ current_teacher.id }}">
+                            {% else %}
+                                <select name="teacher_id" class="form-select" required>
+                                    <option value="">Select Teacher...</option>
+                                    {% for t in teachers %}
+                                        <option value="{{ t.id }}">{{ t.full_name }} ({{ t.department|default:"Faculty" }})</option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Date <span class="text-danger">*</span></label>
+                            <input type="date" name="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Start Time <span class="text-danger">*</span></label>
+                            <input type="time" name="start_time" class="form-control" value="10:00" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">End Time <span class="text-danger">*</span></label>
+                            <input type="time" name="end_time" class="form-control" value="10:30" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Meeting Mode</label>
+                            <select name="meeting_type" class="form-select">
+                                <option value="ONLINE">Online Video Conference</option>
+                                <option value="IN_PERSON">In-Person (School Campus)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Location / Video Link</label>
+                            <input type="text" name="location_or_link" class="form-control" value="https://meet.google.com/edutrack-ptm" placeholder="Google Meet link or Room Number">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Initial Agenda / Discussion Topics</label>
+                            <textarea name="agenda_notes" class="form-control" rows="2" placeholder="e.g. Review Mathematics midterm score and attendance drop in August."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
+                        <i class="fa-solid fa-check text-white me-1"></i> Confirm & Schedule PTM
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Report Export Center — Student360{% endblock %}
+{% block page_title %}Official Reports & Data Exports{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Excel Export Card -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-3 p-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon bg-icon-success" style="width:56px; height:56px;">
+                    <i class="fa-solid fa-file-excel fs-2"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">School-Wide Performance Excel Export</h5>
+                    <p class="text-muted small mb-2">Export complete student scores, 7 pillars, and risk indicators to XLSX format.</p>
+                    <a href="{% url 'export_excel_report' %}" class="btn btn-sm btn-success rounded-pill px-4">
+                        <i class="fa-solid fa-download me-1"></i> Download Excel (.xlsx)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 pt-3 pb-3">
+        <h6 class="fw-bold m-0 text-dark"><i class="fa-solid fa-file-pdf text-danger me-2"></i>Individual Student 360 PDF Cards</h6>
+    </div>
+    <div class="card-body px-0 pb-0">
+        <div class="table-responsive">
+            <table class="table custom-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Student ID</th>
+                        <th>Name</th>
+                        <th>Class & Division</th>
+                        <th class="pe-4 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                        <tr>
+                            <td class="ps-4 font-monospace fw-bold text-primary">{{ s.student_id }}</td>
+                            <td class="fw-bold text-dark">{{ s.full_name }}</td>
+                            <td>{{ s.class_obj.name }} - {{ s.division_obj.name }}</td>
+                            <td class="pe-4 text-end">
+                                <a href="{% url 'download_pdf_report' s.id %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                    <i class="fa-solid fa-file-pdf me-1"></i> Download PDF
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

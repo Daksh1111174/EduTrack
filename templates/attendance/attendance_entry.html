@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Daily Attendance Register — Student360{% endblock %}
+{% block page_title %}One-Click Daily Attendance Register{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-0 pt-3 pb-3">
+        <form method="GET" class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold text-secondary small">Class</label>
+                <select name="class_id" class="form-select bg-light">
+                    {% for c in classes %}
+                        <option value="{{ c.id }}" {% if selected_class and selected_class.id == c.id %}selected{% endif %}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold text-secondary small">Division</label>
+                <select name="div_id" class="form-select bg-light">
+                    {% for d in divisions %}
+                        <option value="{{ d.id }}" {% if selected_div and selected_div.id == d.id %}selected{% endif %}>{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold text-secondary small">Date</label>
+                <input type="date" name="date" value="{{ date_str }}" class="form-control bg-light">
+            </div>
+            <div class="col-md-3 text-end align-self-end">
+                <button type="submit" class="btn btn-primary rounded-pill px-4">Load Roster</button>
+            </div>
+        </form>
+    </div>
+
+    {% if students %}
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="class_id" value="{{ selected_class.id }}">
+            <input type="hidden" name="div_id" value="{{ selected_div.id }}">
+            <input type="hidden" name="date" value="{{ date_str }}">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold m-0">Mark Attendance for {{ selected_class.name }} - {{ selected_div.name }} ({{ date_str }})</h6>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-success" onclick="markAll('PRESENT')">All Present</button>
+                    <button type="button" class="btn btn-outline-danger" onclick="markAll('ABSENT')">All Absent</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table custom-table align-middle mb-4">
+                    <thead>
+                        <tr>
+                            <th class="ps-4" style="width: 80px;">Roll #</th>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th class="text-center" style="width: 320px;">Attendance Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                            <tr>
+                                <td class="ps-4 fw-bold">{{ s.roll_number }}</td>
+                                <td class="font-monospace text-primary">{{ s.student_id }}</td>
+                                <td class="fw-bold text-dark">{{ s.full_name }}</td>
+                                <td>
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" class="btn-check att-radio" name="att_{{ s.id }}" id="p_{{ s.id }}" value="PRESENT" checked>
+                                        <label class="btn btn-outline-success btn-sm" for="p_{{ s.id }}">Present</label>
+
+                                        <input type="radio" class="btn-check att-radio" name="att_{{ s.id }}" id="a_{{ s.id }}" value="ABSENT">
+                                        <label class="btn btn-outline-danger btn-sm" for="a_{{ s.id }}">Absent</label>
+
+                                        <input type="radio" class="btn-check att-radio" name="att_{{ s.id }}" id="l_{{ s.id }}" value="LATE">
+                                        <label class="btn btn-outline-warning btn-sm" for="l_{{ s.id }}">Late</label>
+
+                                        <input type="radio" class="btn-check att-radio" name="att_{{ s.id }}" id="lv_{{ s.id }}" value="LEAVE">
+                                        <label class="btn btn-outline-info btn-sm" for="lv_{{ s.id }}">Leave</label>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success rounded-pill px-5 py-2 fw-bold shadow-sm">
+                    <i class="fa-solid fa-check-double me-2"></i> Save Attendance Register
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function markAll(status) {
+    document.querySelectorAll('.att-radio').forEach(r => {
+        if (r.value === status) r.checked = true;
+    });
+}
+</script>
+{% endblock %}
