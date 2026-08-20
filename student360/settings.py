@@ -16,8 +16,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ENVIRONMENT VARIABLES
 # ============================================================
 
-# Load .env when running locally.
-# On Render, environment variables are provided by Render itself.
+# Load .env for local development.
+# On Render, environment variables are supplied by Render.
 load_dotenv(BASE_DIR / ".env")
 
 
@@ -27,24 +27,31 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.environ.get(
     "SECRET_KEY",
-    "django-insecure-student360-development-key"
+    "django-insecure-student360-development-key-change-in-production",
 )
 
 DEBUG = os.environ.get(
     "DEBUG",
-    "True"
+    "True",
 ).lower() in ("true", "1", "yes")
 
 
-# Hosts allowed to access the Django application.
+# Allowed hosts
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get(
         "ALLOWED_HOSTS",
-        "127.0.0.1,localhost"
+        "127.0.0.1,localhost",
     ).split(",")
     if host.strip()
 ]
+
+
+# Render automatically provides this variable.
+RENDER_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+
+if RENDER_HOSTNAME and RENDER_HOSTNAME not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RENDER_HOSTNAME)
 
 
 # ============================================================
@@ -94,7 +101,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
 
-    # Serve static files in production
+    # WhiteNoise serves static files in production
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     # CORS
@@ -153,13 +160,13 @@ WSGI_APPLICATION = "student360.wsgi.application"
 # DATABASE
 # ============================================================
 
-# Local development:
-#     SQLite
+# LOCAL DEVELOPMENT
+# ------------------
+# If DATABASE_URL is not present, Django uses SQLite.
 #
-# Render production:
-#     PostgreSQL through DATABASE_URL
-#
-# This allows the same settings.py to work in both environments.
+# RENDER PRODUCTION
+# -----------------
+# Render provides DATABASE_URL for PostgreSQL.
 
 DATABASES = {
     "default": dj_database_url.config(
@@ -184,19 +191,19 @@ AUTH_USER_MODEL = "accounts.User"
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME":
-        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+            "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
         "NAME":
-        "django.contrib.auth.password_validation.MinimumLengthValidator"
+            "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
         "NAME":
-        "django.contrib.auth.password_validation.CommonPasswordValidator"
+            "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
         "NAME":
-        "django.contrib.auth.password_validation.NumericPasswordValidator"
+            "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -207,9 +214,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
+# India timezone
 TIME_ZONE = os.environ.get(
     "TIME_ZONE",
-    "Asia/Kolkata"
+    "Asia/Kolkata",
 )
 
 USE_I18N = True
@@ -222,14 +230,16 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+# Existing EduTrack static directory
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+# Production static files location
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
-# WhiteNoise static file configuration
+# WhiteNoise configuration
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -237,7 +247,7 @@ STORAGES = {
 
     "staticfiles": {
         "BACKEND":
-        "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
@@ -283,7 +293,7 @@ REST_FRAMEWORK = {
 
 
 # ============================================================
-# DRF SPECTACULAR / API DOCUMENTATION
+# DRF SPECTACULAR
 # ============================================================
 
 SPECTACULAR_SETTINGS = {
@@ -315,15 +325,13 @@ LOGOUT_REDIRECT_URL = "login"
 # CORS
 # ============================================================
 
-# Development:
-#     Allow all origins.
+# LOCAL DEVELOPMENT
+# ------------------
+# Allow all origins while developing locally.
 #
-# Production:
-#     Set CORS_ALLOWED_ORIGINS in Render.
-#
-# Example:
-#
-# CORS_ALLOWED_ORIGINS=https://edutrack-frontend.onrender.com
+# PRODUCTION
+# ----------
+# Set CORS_ALLOWED_ORIGINS in Render.
 
 if DEBUG:
 
@@ -337,7 +345,7 @@ else:
         origin.strip()
         for origin in os.environ.get(
             "CORS_ALLOWED_ORIGINS",
-            ""
+            "",
         ).split(",")
         if origin.strip()
     ]
@@ -351,36 +359,51 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         "CSRF_TRUSTED_ORIGINS",
-        ""
+        "",
     ).split(",")
     if origin.strip()
 ]
 
 
 # ============================================================
-# SECURITY SETTINGS
+# PROXY / HTTPS
+# ============================================================
+
+# Render uses a reverse proxy.
+# This tells Django that the original request was HTTPS.
+
+SECURE_PROXY_SSL_HEADER = (
+    "HTTP_X_FORWARDED_PROTO",
+    "https",
+)
+
+
+# ============================================================
+# PRODUCTION SECURITY
 # ============================================================
 
 if not DEBUG:
 
-    # Redirect HTTP → HTTPS
+    # Redirect HTTP requests to HTTPS
     SECURE_SSL_REDIRECT = True
 
-    # Secure cookies
+    # Secure session cookies
     SESSION_COOKIE_SECURE = True
+
+    # Secure CSRF cookies
     CSRF_COOKIE_SECURE = True
 
-    # Prevent browsers from MIME-sniffing responses
+    # Prevent MIME sniffing
     SECURE_CONTENT_TYPE_NOSNIFF = True
 
     # Prevent clickjacking
     X_FRAME_OPTIONS = "DENY"
 
-    # HTTP Strict Transport Security
+    # HSTS
     SECURE_HSTS_SECONDS = int(
         os.environ.get(
             "SECURE_HSTS_SECONDS",
-            "31536000"
+            "31536000",
         )
     )
 
@@ -388,16 +411,8 @@ if not DEBUG:
 
     SECURE_HSTS_PRELOAD = False
 
-
-# ============================================================
-# SESSION SECURITY
-# ============================================================
-
-if not DEBUG:
-
+    # Session cookie settings
     SESSION_COOKIE_HTTPONLY = True
-
-    CSRF_COOKIE_HTTPONLY = False
 
     SESSION_COOKIE_SAMESITE = "Lax"
 
@@ -408,40 +423,11 @@ if not DEBUG:
 # FILE UPLOAD LIMITS
 # ============================================================
 
-# 10 MB maximum upload size.
-# Adjust if EduTrack needs larger certificates/documents.
-
+# Maximum request size: 10 MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
+# Maximum individual uploaded file size: 10 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
-
-
-# ============================================================
-# PROXY / HTTPS CONFIGURATION
-# ============================================================
-
-# Render sits behind a reverse proxy.
-# This allows Django to correctly understand HTTPS requests.
-
-SECURE_PROXY_SSL_HEADER = (
-    "HTTP_X_FORWARDED_PROTO",
-    "https",
-)
-
-
-# ============================================================
-# PRODUCTION HOST SUPPORT
-# ============================================================
-
-# Render provides RENDER_EXTERNAL_HOSTNAME automatically.
-# Add it to ALLOWED_HOSTS if available.
-
-RENDER_HOSTNAME = os.environ.get(
-    "RENDER_EXTERNAL_HOSTNAME"
-)
-
-if RENDER_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_HOSTNAME)
 
 
 # ============================================================
@@ -480,7 +466,7 @@ LOGGING = {
             "handlers": ["console"],
             "level": os.environ.get(
                 "DJANGO_LOG_LEVEL",
-                "INFO"
+                "INFO",
             ),
             "propagate": False,
         },
